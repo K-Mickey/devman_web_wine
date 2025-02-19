@@ -1,3 +1,6 @@
 env/
 .vscode/
+.idea/
 
+*.xlsx
+/index.html
