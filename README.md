@@ -23,6 +23,12 @@ pip install -r requirements.txt
   - `WINE_PATH` - путь к XLSX файлу с винами (обязательный)
   - `LOG_LEVEL` - уровень логирования
 
+  Пример файла:
+  ```
+  WINE_PATH=wine.xlsx
+  LOG_LEVEL=INFO
+  ```
+
 ## Запуск
 
 - Запустите сайт командой `python3 main.py`

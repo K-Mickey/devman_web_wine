@@ -10,6 +10,22 @@ from dotenv import load_dotenv
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 
+def render_page(logger: logging.Logger, wine_path: str) -> None:
+    env = Environment(
+        loader=FileSystemLoader('.'),
+        autoescape=select_autoescape(['html']),
+    )
+
+    template = env.get_template('template.html')
+
+    template_context = get_template_context(wine_path)
+    rendered_page = template.render(**template_context)
+    logger.debug(f'{template_context=}')
+
+    with open('index.html', 'w', encoding='utf8') as file:
+        file.write(rendered_page)
+
+
 def get_template_context(wine_path: str) -> dict:
     current_year = datetime.now().year
     foundation_year = 1920
@@ -45,19 +61,15 @@ def format_year(year: int) -> str:
         return f'{year} лет'
 
 
-def main(logger: logging.Logger, wine_path: str) -> NoReturn:
-    env = Environment(
-        loader=FileSystemLoader('.'),
-        autoescape=select_autoescape(['html']),
-    )
-    template = env.get_template('template.html')
+def main() -> NoReturn:
+    load_dotenv()
+    wine_path = os.environ['WINE_PATH']
+    log_level = os.getenv('LOG_LEVEL', 'INFO')
 
-    template_context = get_template_context(wine_path)
-    rendered_page = template.render(**template_context)
-    logger.debug(f'{template_context=}')
+    logging.basicConfig(level=log_level)
+    logger = logging.getLogger(__name__)
 
-    with open('index.html', 'w', encoding='utf8') as file:
-        file.write(rendered_page)
+    render_page(logger=logger, wine_path=wine_path)
 
     logger.info('Запускаю сервер..')
     server = HTTPServer(('0.0.0.0', 8000), SimpleHTTPRequestHandler)
@@ -65,11 +77,4 @@ def main(logger: logging.Logger, wine_path: str) -> NoReturn:
 
 
 if __name__ == '__main__':
-    load_dotenv()
-    wine_path = os.environ['WINE_PATH']
-    log_level = os.getenv('LOG_LEVEL', 'INFO')
-
-    logging.basicConfig(level=log_level)
-    log = logging.getLogger(__name__)
-
-    main(logger=log, wine_path=wine_path)
+    main()
